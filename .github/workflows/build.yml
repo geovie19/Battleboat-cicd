@@ -1,0 +1,78 @@
+---
+name: battleboat
+'on':
+  pull_request:
+  push:
+    branches:
+      - production
+      - develop
+    
+#  schedule:
+#    - cron: "0 2 * * *"
+env:
+  HEROKU_APP_STG: "battleboat-staging"
+  HEROKU_APP_PROD: "battleboat-prod"
+  IMAGE_NAME: "website"
+  IMAGE_TAG: "latest"
+  CONTAINER_PORT: "80"
+  EXPOSED_PORT: "80"
+
+jobs:
+  build:
+    name: BUILD DOCKER IMAGE
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Build Image
+        run: | 
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG .
+          docker save ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG > $IMAGE_NAME
+          echo "IMAGE_NAME=website" >> $GITHUB_ENV
+      - name: Cache artefact
+        uses: actions/cache@v3
+        with:
+          key: image
+          path: ${{ env.IMAGE_NAME }}
+          
+
+  run-and-test:
+    name: RUN AND TEST CONTAINER
+    needs: build
+    runs-on: ubuntu-latest
+    steps:  
+      - name: Download workspace from job build
+        uses: actions/cache@v3
+        with:
+          key: image
+          path: ${{ env.IMAGE_NAME }}
+      - name: Run container based on builded image
+        run: |
+          docker load < $IMAGE_NAME
+          docker run --name $IMAGE_NAME -d -p ${EXPOSED_PORT}:${CONTAINER_PORT} -e PORT=$CONTAINER_PORT ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
+          sleep 5
+
+      - name: Test image.
+        run: curl "http://localhost:${EXPORT_PORT}" | grep -i "stats"
+
+      - name: Clean Container
+        run: |
+          docker stop $IMAGE_NAME
+          docker rm $IMAGE_NAME
+
+  push:
+    name: PUSH IMAGE ON DOCKERHUB
+    needs: run-and-test
+    runs-on: ubuntu-latest
+    steps:    
+      - name: Download workspace from job build
+        uses: actions/cache@v3
+        with:
+          key: image
+          path: ${{ env.IMAGE_NAME }}
+      - name: Login and Push Image on docker hub
+        run: |
+          docker load < $IMAGE_NAME
+          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG    
