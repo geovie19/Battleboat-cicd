@@ -38,6 +38,14 @@ pipeline {
                 }
             }
         }
+        stage('Print Workspace Contents') {
+    steps {
+        script {
+            sh 'ls -al ${WORKSPACE}'
+        }
+    }
+}
+                                              
     
         stage('Check Syntax - Dockerfile'){
           steps{
