@@ -38,7 +38,7 @@ pipeline {
                 }
             }
         }
-     stages {
+    
         stage('Check Syntax - Dockerfile'){
           steps{
              script {
