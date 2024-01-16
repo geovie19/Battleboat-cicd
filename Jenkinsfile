@@ -22,7 +22,7 @@ pipeline {
         IMAGE_NAME = "battleboat-cicd"    
         DOCKERHUB_ID = "geovie19"
         EXPOSE_PORT="8181"
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        DOCKERHUB_CREDENTIALS = credentials('geovie19')
     }
      stages {
         stage('Check Syntax - Dockerfile'){
