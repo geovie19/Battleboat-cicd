@@ -301,11 +301,5 @@ pipeline {
             }
           }
  }
- post {
-     always {
-       script {
-        slacknotifier currentBuild.result
-     }
-    }
- }
+ 
 }
