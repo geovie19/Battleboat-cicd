@@ -20,8 +20,8 @@ pipeline {
 
     }
     environment {
-        IMAGE_NAME = "battleboat"    
-        DOCKERHUB_ID = "edennolan2021"
+        IMAGE_NAME = "battleboat-cicd"    
+        DOCKERHUB_ID = "geovie19"
         EXPOSE_PORT="8181"
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
     }
