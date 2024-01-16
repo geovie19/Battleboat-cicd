@@ -26,6 +26,19 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
     }
      stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    checkout([$class: 'GitSCM', 
+                              branches: [[name: 'main']], 
+                              doGenerateSubmoduleConfigurations: false, 
+                              extensions: [], 
+                              submoduleCfg: [], 
+                              userRemoteConfigs: [[url: https://github.com/geovie19/Battleboat-cicd.git]]])
+                }
+            }
+        }
+     stages {
         stage('Check Syntax - Dockerfile'){
           steps{
              script {
