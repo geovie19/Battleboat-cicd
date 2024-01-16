@@ -1,6 +1,23 @@
 pipeline {
     agent any
-    
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'2'))
+        disableConcurrentBuilds()
+        timeout (time: 60, unit: 'MINUTES')
+        timestamps()
+      }
+     parameters {
+        choice(
+            choices: ['DEV', 'QA','SANDBOX', 'PROD'], 
+            name: 'Environment'
+          )
+        string(
+            defaultValue: '0.0.0',
+            name: 'tag',
+            description: '''Please enter dev image tag to be used''',
+         )
+
+    }
     environment {
         IMAGE_NAME = "battleboat-cicd"    
         DOCKERHUB_ID = "geovie19"
@@ -8,27 +25,6 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
     }
      stages {
-        stage('Checkout') {
-            steps {
-                script {
-                    checkout([$class: 'GitSCM', 
-                              branches: [[name: 'main']], 
-                              doGenerateSubmoduleConfigurations: false, 
-                              extensions: [], 
-                              submoduleCfg: [], 
-                              userRemoteConfigs: [[url: 'https://github.com/geovie19/Battleboat-cicd.git']]])
-                }
-            }
-        }
-        stage('Print Workspace Contents') {
-    steps {
-        script {
-            sh 'ls -al ${WORKSPACE}'
-        }
-    }
-}
-                                              
-    
         stage('Check Syntax - Dockerfile'){
           steps{
              script {
@@ -284,5 +280,5 @@ pipeline {
             }
           }
  }
- 
+
 }
