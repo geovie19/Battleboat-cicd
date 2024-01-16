@@ -34,7 +34,7 @@ pipeline {
                               doGenerateSubmoduleConfigurations: false, 
                               extensions: [], 
                               submoduleCfg: [], 
-                              userRemoteConfigs: [[url: https://github.com/geovie19/Battleboat-cicd.git]]])
+                              userRemoteConfigs: [[url: 'https://github.com/geovie19/Battleboat-cicd.git']]])
                 }
             }
         }
